@@ -20,19 +20,43 @@ public class PlayerUnitCore : MonoBehaviour
     #region Level
 
     public int level = 1;
-    public float xp = 0;
+    public float xp = 0f;
     public float xpToLevel = 10;
 
     #endregion
-    public int health;
+    public float health = 100f;
 
     #region Combat
-    public float damage;
-    public float reloadSpeed;
-
+    public float damage = 10f;
+    public float reloadSpeed = 10f;
+    public float fireRate = 2f;
+    public int MagazineSize = 5;
     #endregion
-    public float speed;
+
+    public float movementSpeed;
     
+    public void GainXp(float amount)
+    {
+        xp += amount;
+        if(xp >= xpToLevel)
+        {
+            LevelUp();           
+        }
+    }
 
+    public void LevelUp()
+    {
+        level++;
+        var diff = xp - xpToLevel;
+        xp = diff;
+        xpToLevel *= 1.2f;
 
+        IncreaseRandomStat();
+    }
+
+    public void IncreaseRandomStat()
+    {
+        var randomRange = Random.Range(0, 1);
+        //switch (randomRange)
+    }
 }
