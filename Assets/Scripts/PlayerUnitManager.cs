@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerUnitManager : MonoBehaviour
 {
@@ -9,6 +10,11 @@ public class PlayerUnitManager : MonoBehaviour
     {
         mainCamera = Camera.main;
         InitializeCharacters();
+
+        if (addXpButton != null)
+        {
+            addXpButton.onClick.AddListener(AddXPToSelectedCharacter);  // Add listener to button click
+        }
     }
 
     // Update is called once per frame
@@ -18,7 +24,7 @@ public class PlayerUnitManager : MonoBehaviour
         HandleUnitCommands();
     }
 
-
+    public Button addXpButton;
     public Camera mainCamera;
     public PlayerUnitCore selectedCharacter; // The currently selected character
     private GameObject selectedCharacterInstance; // The selected character's instance
@@ -43,7 +49,7 @@ public class PlayerUnitManager : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit))
             {
-                CharacterModel clickedCharacter = hit.transform.GetComponent<CharacterModel>();
+                PlayerUnitCore clickedCharacter = hit.transform.GetComponent<PlayerUnitCore>();
                 if (clickedCharacter != null)
                 {
                     SelectCharacter(clickedCharacter);
@@ -53,7 +59,7 @@ public class PlayerUnitManager : MonoBehaviour
     }
 
     // Select the clicked character
-    private void SelectCharacter(CharacterModel character)
+    private void SelectCharacter(PlayerUnitCore character)
     {
         selectedCharacter = character;
 
@@ -66,7 +72,7 @@ public class PlayerUnitManager : MonoBehaviour
 
         selectedCharacterInstance = selectedCharacter.characterInstance;
         selectedCharacterInstance.GetComponent<Renderer>().material.color = Color.green; // Change color to indicate selection
-        Debug.Log($"{selectedCharacter.characterName} is selected.");
+        Debug.Log($"{selectedCharacter.name} is selected.");
     }
 
     // Handle commands for the selected unit
@@ -94,9 +100,25 @@ public class PlayerUnitManager : MonoBehaviour
     {
         if (selectedCharacterInstance != null)
         {
-            selectedCharacterInstance.GetComponent<CharacterMovement>().MoveToPosition(targetMovePosition);
+            //  selectedCharacterInstance.GetComponent<CharacterMovement>().MoveToPosition(targetMovePosition);
         }
     }
+
+
+    private void AddXPToSelectedCharacter()
+    {
+        if (selectedCharacter != null)
+        {
+            int xpAmount = 10; // Amount of XP to give
+            selectedCharacter.GainXp(xpAmount);
+        }
+        else
+        {
+            Debug.Log("No character selected!");
+        }
+    }
+
+
 }
 
 

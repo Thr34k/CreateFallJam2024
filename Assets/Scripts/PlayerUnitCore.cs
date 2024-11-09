@@ -45,11 +45,6 @@ public class PlayerUnitCore : MonoBehaviour
 
   
 
-    public PlayerUnitCore(string unitName) 
-    { 
-            
-    }
-
     public void GainXp(float amount)
     {
         xp += amount;
