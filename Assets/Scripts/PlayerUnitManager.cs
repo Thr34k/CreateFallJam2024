@@ -1,10 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerUnitManager : MonoBehaviour
 {
+    [Header("Spawnpoints")]
+    List<GameObject> playerSpawns = new List<GameObject>();
+
+    [Header("AI references")]
+    List<GameObject> activePlayerUnits = new List<GameObject>();
+    public GameObject nextSpawnToUse;
+    public GameObject playerUnitPrefab;
+    public int maxPlayerUnitCount;
+
+    void Awake()
+    {
+        playerSpawns = GameObject.FindGameObjectsWithTag("PlayerSpawn").ToList();
+    }
+
     // Start is called before the first frame update
     private void Start()
     {
@@ -22,6 +37,11 @@ public class PlayerUnitManager : MonoBehaviour
     {
         HandleCharacterSelection();
         HandleUnitCommands();
+
+        if (activePlayerUnits.Count < maxPlayerUnitCount) 
+        {
+            SpawnPlayerUnit();
+        }
     }
 
     public Button addXpButton;
@@ -29,6 +49,30 @@ public class PlayerUnitManager : MonoBehaviour
     public PlayerUnitCore selectedCharacter; // The currently selected character
     private GameObject selectedCharacterInstance; // The selected character's instance
     private Vector3 targetMovePosition;
+
+    void SpawnPlayerUnit() 
+    {
+        if (nextSpawnToUse != null)
+        {
+            var viableNextSpawns = playerSpawns.Where(x => x != nextSpawnToUse).ToList();
+            int nextSpawnIndex = UnityEngine.Random.Range(0, viableNextSpawns.Count);
+            nextSpawnToUse = playerSpawns[nextSpawnIndex];
+        }
+        else
+        {
+            int currentSpawnIndex = UnityEngine.Random.Range(0, playerSpawns.Count);
+            nextSpawnToUse = playerSpawns[currentSpawnIndex];
+        }
+
+        var spawnedEnemy = Instantiate(playerUnitPrefab, nextSpawnToUse.transform.position, playerUnitPrefab.transform.rotation);
+        spawnedEnemy.GetComponent<PlayerUnitCore>().PlayerUnitDied += HandlePlayerUnitDied;
+        activePlayerUnits.Add(spawnedEnemy);
+    }
+
+    void HandlePlayerUnitDied(GameObject deadPlayerUnit) 
+    { 
+        activePlayerUnits.Remove(deadPlayerUnit);
+    }
 
 
     // Initialize characters in the game (can be loaded from a pool or directly in the scene)

@@ -1,10 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Ghoul : MonoBehaviour
 {
+    #region events
+    public event Action<GameObject> GhouldDied;
+    #endregion
+
     #region Necessary References
     [Header("Necessary References")]
     public Grid grid;
@@ -28,6 +35,12 @@ public class Ghoul : MonoBehaviour
     #region AI variables
     [Header("AI variables")]
     public float movementSpeed = .5f;
+    public int startingHealth = 1;
+    int remainingHealth;
+    public int damage = 10;
+    public float timeBetweenAttacks = 2.5f;
+    public float remainingTimeToAttack;
+    public bool isAttacking = false;
     #endregion
 
     void Awake()
@@ -44,18 +57,38 @@ public class Ghoul : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        currentPosition = grid.WorldToCell(transform.position);
-        distanceToFinalTarget = Vector3.Distance(transform.position, finalTarget.transform.position);
-        distanceToNextPosition = Vector3.Distance(transform.position, testNextPositionMarker.transform.position);
-        if (distanceToNextPosition >= 0f) 
-        { 
-            FindNextMovePosition();
+        //currentPosition = grid.WorldToCell(transform.position);
+        if (finalTarget != null)
+        {
+            distanceToFinalTarget = Vector3.Distance(transform.position, finalTarget.transform.position);
+            distanceToNextPosition = Vector3.Distance(transform.position, testNextPositionMarker.transform.position);
+            if (distanceToNextPosition >= 0f)
+            {
+                FindNextMovePosition();
+            }
+            if (distanceToFinalTarget > 0.6f)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, testNextPositionMarker.transform.position, movementSpeed * Time.deltaTime);
+            }
+            else
+            {
+                if (!isAttacking) 
+                { 
+                    StartCoroutine("StartAttacking");
+                }
+            }
+        }
+        else 
+        {
+            FindNewTarget();
         }
 
-        if (distanceToFinalTarget > 0.1f) 
-        { 
-            transform.position = Vector2.MoveTowards(transform.position, testNextPositionMarker.transform.position, movementSpeed * Time.deltaTime);
-        }
+    }
+
+    private void FindNewTarget()
+    {
+        var viableTargets = GameObject.FindGameObjectsWithTag("PlayerUnit").ToList();
+        finalTarget = viableTargets.FirstOrDefault();
     }
 
     private void Init()
@@ -65,6 +98,42 @@ public class Ghoul : MonoBehaviour
         testNextPositionMarker = GameObject.Find("TestNextPositionMarker");
         bounds = gridObject.GetComponent<Tilemap>().cellBounds;
         grid = gridObject.GetComponent<Grid>();
+        remainingHealth = startingHealth;
+        remainingTimeToAttack = timeBetweenAttacks;
+    }
+
+    public void TakeDamage(int damageToTake) 
+    {
+        remainingHealth -= damageToTake;
+        if (remainingHealth <= 0) 
+        {
+            Die();
+        }
+    }
+
+    IEnumerator StartAttacking() 
+    {
+        isAttacking = true;
+        while (remainingTimeToAttack > 0) 
+        { 
+            remainingTimeToAttack -= Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+
+        }
+        if (remainingTimeToAttack <= 0)
+        {
+            finalTarget.GetComponent<PlayerUnitCore>().TakeDamage(damage);
+            remainingTimeToAttack = timeBetweenAttacks;
+            isAttacking = false;
+        }
+
+    }
+
+    private void Die()
+    {
+        GhouldDied?.Invoke(this.gameObject);
+        GhouldDied = null;
+        Destroy(gameObject);
     }
 
     void Move() 
@@ -94,7 +163,11 @@ public class Ghoul : MonoBehaviour
         }
 
         testNextPositionMarker.transform.position = grid.CellToWorld(chosenNextPosition);
+
     }
 
-
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        Debug.Log($"{gameObject.name}: Trigger collision detected");
+    }
 }

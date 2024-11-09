@@ -6,6 +6,8 @@ TagManager:
   tags:
   - PlayerUnit
   - GhoulUnit
+  - MonsterSpawn
+  - PlayerSpawn
   layers:
   - Default
   - TransparentFX

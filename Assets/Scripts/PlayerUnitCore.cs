@@ -1,16 +1,23 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
 
 public class PlayerUnitCore : MonoBehaviour
 {
+    #region Events
+    public event Action<GameObject> PlayerUnitDied;
+    #endregion
+
     [Header("Necessary references and fields")]
     public GameObject targetEnemy;
     public GameObject bulletPrefab;
     public string unitName;
     public GameObject characterInstance;
+    public GameObject projectileSpawn;
     #region Level
     [Header("Experience")]
 
@@ -71,16 +78,31 @@ public class PlayerUnitCore : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float angleToTarget = Turn();
-        if (angleToTarget < 1f && canShoot)
+        if (targetEnemy != null)
         {
-            Shoot();
+            float angleToTarget = Turn();
+            if (angleToTarget < 1f && canShoot)
+            {
+                Shoot();
+            }
         }
+        else 
+        {
+            FindNewTarget();
+        }
+    }
+
+    private void FindNewTarget()
+    {
+        var viableTargets = GameObject.FindGameObjectsWithTag("GhoulUnit").ToList();
+        targetEnemy = viableTargets.FirstOrDefault();
     }
 
     void Init()
     {
         targetEnemy = GameObject.FindGameObjectWithTag("GhoulUnit");
+        characterInstance = this.gameObject;
+        projectileSpawn = this.gameObject.transform.GetChild(0).gameObject;
     }
 
     float Turn()
@@ -93,13 +115,11 @@ public class PlayerUnitCore : MonoBehaviour
 
     void Shoot()
     {
-        Debug.Log($"{gameObject.name}: Pew!");
+        var spawnedProjectile = Instantiate(bulletPrefab, projectileSpawn.transform.position, this.gameObject.transform.rotation);
         canShoot = false;
         remainingReloadTime = characterReloadTime;
-        Debug.Log($"{gameObject.name}: Reloading!");
         StartCoroutine("StartReloading");
     }
-
     IEnumerator StartReloading()
     {
         while (remainingReloadTime > 0)
@@ -110,10 +130,26 @@ public class PlayerUnitCore : MonoBehaviour
 
         if (remainingReloadTime <= 0)
         {
-            Debug.Log($"{gameObject.name}; Reloaded!");
             canShoot = true;
         }
     }
+
+    public void TakeDamage(int damageToTake) 
+    {
+        health -= damageToTake;
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        PlayerUnitDied?.Invoke(this.gameObject);
+        PlayerUnitDied = null;
+        Destroy(this.gameObject);
+    }
+
 
     public void GainXp(float amount)
     {
@@ -136,37 +172,37 @@ public class PlayerUnitCore : MonoBehaviour
 
     public void IncreaseRandomStat()
     {
-        var randomRange = Random.Range(0, 5);
+        var randomRange = UnityEngine.Random.Range(0, 6);
         switch (randomRange)
         {
             case 0:
-                int healthIncrease = Random.Range(5, 20);
+                int healthIncrease = UnityEngine.Random.Range(5, 21);
                 maxHealth += healthIncrease;
                 health = health + healthIncrease;
                 break;
 
             case 1:
-                float damageIncrease = Random.Range(2, 5);
+                float damageIncrease = UnityEngine.Random.Range(2, 6);
                 damage += damageIncrease;
                 break;
 
             case 2:
-                float fireRateIncrease = Random.Range(0.1f, 0.5f);
+                float fireRateIncrease = UnityEngine.Random.Range(0.1f, 0.6f);
                 fireRate += fireRateIncrease;
                 break;
 
             case 3:
-                float reloadSpeedIncrease = Random.Range(5f, 10f);
+                float reloadSpeedIncrease = UnityEngine.Random.Range(5f, 10.1f);
                 reloadSpeed += reloadSpeedIncrease;
                 break;
 
             case 4:
-                int magazineSizeIncrease = Random.Range(1, 2);
+                int magazineSizeIncrease = UnityEngine.Random.Range(1, 3);
                 MagazineSize += magazineSizeIncrease;
                 break;
 
             case 5:
-                float xpModifierIncrease = Random.Range(0.05f, 0.15f);
+                float xpModifierIncrease = UnityEngine.Random.Range(0.05f, 0.16f);
                 xpModifier += xpModifierIncrease;
                 break;
         }
