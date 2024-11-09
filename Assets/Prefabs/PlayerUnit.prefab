@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4117874492813743745}
   - component: {fileID: 3654806644762718575}
-  - component: {fileID: 1434516861839940510}
+  - component: {fileID: -6866023295643474758}
   m_Layer: 0
   m_Name: PlayerUnit
   m_TagString: PlayerUnit
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1434516861839940510
+--- !u!114 &-6866023295643474758
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,14 +94,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 459965742702098687}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa30c1796bbc29d4b8ceab02f2ea12e0, type: 3}
+  m_Script: {fileID: 11500000, guid: 81ac3212700496f4587b2dc165aa1966, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitName: 
-  level: 1
-  xp: 0
-  xpToLevel: 10
-  health: 0
-  damage: 0
-  reloadSpeed: 0
-  speed: 0
