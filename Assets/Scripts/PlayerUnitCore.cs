@@ -6,7 +6,9 @@ using UnityEngine;
 
 public class PlayerUnitCore : MonoBehaviour
 {
-
+    [Header("Necessary references and fields")]
+    public GameObject targetEnemy;
+    public GameObject bulletPrefab;
     public string unitName;
     public GameObject characterInstance;
     #region Level
@@ -30,20 +32,88 @@ public class PlayerUnitCore : MonoBehaviour
     public int MagazineSize = 5;
     #endregion
 
+    [Header("Shooting Variables")]
+    public bool canShoot = true;
+    public float characterReloadTime = 2.5f;
+    public float remainingReloadTime = 0;
+
+    [Header("Movement variables")]
+    public float turningSpeed;
     public float movementSpeed;
+
+    [Header("Debugging variables")]
+    public bool debug = true;
+    GUIStyle gui = new GUIStyle();
+
+    void Awake()
+    {
+        Init();    
+    }
+
     // Start is called before the first frame update
     void Start()
     {
 
     }
 
+    void OnGUI()
+    {
+        if (debug) 
+        {
+            gui.fontSize = 25;
+            gui.normal.textColor = Color.green;
+            GUI.BeginGroup(new Rect(10, 10, 600, 350));
+            GUI.Label(new Rect(10, 25, 500, 30), $"PlayerUnits Current Level: {level}", gui);
+            GUI.EndGroup();
+        }    
+    }
+
     // Update is called once per frame
     void Update()
     {
-
+        float angleToTarget = Turn();
+        if (angleToTarget < 1f && canShoot)
+        {
+            Shoot();
+        }
     }
 
-  
+    void Init()
+    {
+        targetEnemy = GameObject.FindGameObjectWithTag("GhoulUnit");
+    }
+
+    float Turn()
+    {
+        var targetDirection = targetEnemy.transform.position - transform.position;
+        var angleToTarget = Vector3.Angle(transform.right, targetDirection);
+        transform.right = Vector3.MoveTowards(transform.right, targetDirection, turningSpeed * Time.deltaTime);
+        return angleToTarget;
+    }
+
+    void Shoot()
+    {
+        Debug.Log($"{gameObject.name}: Pew!");
+        canShoot = false;
+        remainingReloadTime = characterReloadTime;
+        Debug.Log($"{gameObject.name}: Reloading!");
+        StartCoroutine("StartReloading");
+    }
+
+    IEnumerator StartReloading()
+    {
+        while (remainingReloadTime > 0)
+        {
+            remainingReloadTime -= Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (remainingReloadTime <= 0)
+        {
+            Debug.Log($"{gameObject.name}; Reloaded!");
+            canShoot = true;
+        }
+    }
 
     public void GainXp(float amount)
     {
