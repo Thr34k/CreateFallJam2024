@@ -18,6 +18,9 @@ public class PlayerUnitCore : MonoBehaviour
     public string unitName;
     public GameObject characterInstance;
     public GameObject projectileSpawn;
+    public Weapon currentWeapon;
+    public Vector2 targetPosition;
+
     #region Level
     [Header("Experience")]
 
@@ -37,13 +40,15 @@ public class PlayerUnitCore : MonoBehaviour
     public float reloadSpeed = 10f;
     public float fireRate = 2f;
     public int MagazineSize = 5;
-    private int currentAmmo;
+    public int currentAmmo = 0;
     #endregion
 
     [Header("Shooting Variables")]
-    public bool canShoot = true;
+    public bool reloaded = true;
     public float characterReloadTime = 2.5f;
     public float remainingReloadTime = 0;
+    public bool canShoot = true;
+    public float timeUntilNextShot;
 
     [Header("Movement variables")]
     public float turningSpeed;
@@ -82,17 +87,17 @@ public class PlayerUnitCore : MonoBehaviour
         if (targetEnemy != null)
         {
             float angleToTarget = Turn();
-            if (angleToTarget < 1f && canShoot)
+            if (angleToTarget < 1f && reloaded)
             {
                 Shoot();
-                currentAmmo--;
-
             }
         }
         else 
         {
             FindNewTarget();
         }
+
+        MoveCharacter();
     }
 
     private void FindNewTarget()
@@ -106,7 +111,16 @@ public class PlayerUnitCore : MonoBehaviour
         targetEnemy = GameObject.FindGameObjectWithTag("GhoulUnit");
         characterInstance = this.gameObject;
         projectileSpawn = this.gameObject.transform.GetChild(0).gameObject;
+        currentWeapon = this.gameObject.transform.GetChild(1).gameObject.GetComponent<Weapon>();
         currentAmmo = MagazineSize;
+        timeUntilNextShot = 0f;
+        targetPosition = transform.position;
+    }
+
+    public void MoveCharacter()
+    {
+        Debug.Log($"{gameObject.name}: Moving position: {targetPosition}");
+        transform.position = Vector2.MoveTowards(transform.position, targetPosition, movementSpeed * Time.deltaTime);
     }
 
     float Turn()
@@ -119,22 +133,29 @@ public class PlayerUnitCore : MonoBehaviour
 
     void Shoot()
     {
-        var spawnedProjectile = Instantiate(bulletPrefab, projectileSpawn.transform.position, this.gameObject.transform.rotation);
-        ProjectileBehavior projectile = spawnedProjectile.GetComponent<ProjectileBehavior>();
+        if (canShoot) 
+        { 
+            var spawnedProjectile = Instantiate(bulletPrefab, projectileSpawn.transform.position, this.gameObject.transform.rotation);
+            ProjectileBehavior projectile = spawnedProjectile.GetComponent<ProjectileBehavior>();
+            if (projectile != null)
+                projectile.SetShooter(this);
+            else { throw new Exception(); }
+            currentAmmo--;
+            canShoot = false;
+            timeUntilNextShot = fireRate;
+            StartCoroutine("WaitForNextShot");
+        }
 
-        if (projectile != null)
-            projectile.SetShooter(this);
-        else { throw new Exception(); }
 
         if (currentAmmo <= 0)
         {
-            canShoot = false;
+            reloaded = false;
             remainingReloadTime = characterReloadTime;
             StartCoroutine("StartReloading");
         }
         else
         {
-            canShoot = true;
+            reloaded = true;
 
         }
 
@@ -150,6 +171,20 @@ public class PlayerUnitCore : MonoBehaviour
         if (remainingReloadTime <= 0)
         {
             currentAmmo = MagazineSize;
+            reloaded = true;
+        }
+    }
+
+    IEnumerator WaitForNextShot() 
+    {
+        while (timeUntilNextShot > 0) 
+        { 
+            timeUntilNextShot -= Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (timeUntilNextShot <= 0) 
+        {
             canShoot = true;
         }
     }

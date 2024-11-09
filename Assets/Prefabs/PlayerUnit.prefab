@@ -150,6 +150,7 @@ MonoBehaviour:
   unitName: 
   characterInstance: {fileID: 0}
   projectileSpawn: {fileID: 0}
+  currentWeapon: {fileID: 0}
   level: 1
   xp: 0
   xpToLevel: 10
@@ -158,13 +159,16 @@ MonoBehaviour:
   maxHealth: 100
   damage: 10
   reloadSpeed: 10
-  fireRate: 2
+  fireRate: 0.5
   MagazineSize: 5
-  canShoot: 1
+  currentAmmo: 0
+  reloaded: 1
   characterReloadTime: 2.5
   remainingReloadTime: 0
+  canShoot: 1
+  timeUntilNextShot: 0
   turningSpeed: 5
-  movementSpeed: 0
+  movementSpeed: 1
   debug: 1
 --- !u!1 &2123186739803852982
 GameObject:
@@ -176,6 +180,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3158800070138458490}
   - component: {fileID: 8738321873594908198}
+  - component: {fileID: 7944092996920434754}
   m_Layer: 0
   m_Name: Weapon
   m_TagString: Untagged
@@ -250,6 +255,23 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &7944092996920434754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2123186739803852982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 221a9bd0bacc4f74e8312d1d12c310db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 0}
+  baseDamage: 10
+  baseReloadSpeed: 10
+  baseFireRate: 2
+  baseMagazineSize: 5
 --- !u!1 &6250173322405850351
 GameObject:
   m_ObjectHideFlags: 0

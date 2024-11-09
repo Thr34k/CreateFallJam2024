@@ -30,7 +30,6 @@ public class ProjectileBehavior : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("GhoulUnit")) 
         { 
-            Debug.Log($"{gameObject.name}: Hit a ghoul");
             collision.gameObject.GetComponent<Ghoul>().TakeDamage(projectileDamage, shooter);
             Destroy(gameObject);
         }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -88,16 +89,22 @@ public class PlayerUnitManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0)) // Left mouse button clicked
         {
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
+            Vector2 worldPoint = mainCamera.ScreenToWorldPoint(Input.mousePosition);
 
-            if (Physics.Raycast(ray, out hit))
+            RaycastHit2D hit2D = Physics2D.Raycast(worldPoint, Vector2.zero);
+
+            if (hit2D.collider)
             {
-                PlayerUnitCore clickedCharacter = hit.transform.GetComponent<PlayerUnitCore>();
+                PlayerUnitCore clickedCharacter = hit2D.collider.GetComponent<PlayerUnitCore>();
                 if (clickedCharacter != null)
                 {
                     SelectCharacter(clickedCharacter);
                 }
+            }
+            else 
+            { 
+                selectedCharacterInstance.GetComponent<Renderer>().material.color = Color.white;
+                selectedCharacter = null;
             }
         }
     }
@@ -127,24 +134,23 @@ public class PlayerUnitManager : MonoBehaviour
             // If the right mouse button is clicked, issue a move command
             if (Input.GetMouseButtonDown(1)) // Right mouse button clicked
             {
-                Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
+                Vector2 worldPoint = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+                Debug.Log($"Right mousebutton clicked at position {worldPoint}");
+                MoveSelectedCharacter(worldPoint);
 
-                if (Physics.Raycast(ray, out hit))
-                {
-                    targetMovePosition = hit.point;
-                    MoveSelectedCharacter();
-                }
             }
         }
     }
 
     // Move the selected unit to the target position
-    private void MoveSelectedCharacter()
+    private void MoveSelectedCharacter(Vector2 positionToMoveTo)
     {
+        Debug.Log($"Moving {selectedCharacter} to position {positionToMoveTo}");
+
         if (selectedCharacterInstance != null)
         {
-            //  selectedCharacterInstance.GetComponent<CharacterMovement>().MoveToPosition(targetMovePosition);
+            selectedCharacterInstance.GetComponent<PlayerUnitCore>().targetPosition = positionToMoveTo;
+            selectedCharacterInstance.GetComponent<PlayerUnitCore>().MoveCharacter();
         }
     }
 
