@@ -34,6 +34,7 @@ public class Ghoul : MonoBehaviour
 
     #region AI variables
     [Header("AI variables")]
+    public float xpReward = 5f;
     public float movementSpeed = .5f;
     public int startingHealth = 1;
     int remainingHealth;
@@ -41,6 +42,9 @@ public class Ghoul : MonoBehaviour
     public float timeBetweenAttacks = 2.5f;
     public float remainingTimeToAttack;
     public bool isAttacking = false;
+
+    public PlayerUnitCore lastAttacker;
+
     #endregion
 
     void Awake()
@@ -102,8 +106,9 @@ public class Ghoul : MonoBehaviour
         remainingTimeToAttack = timeBetweenAttacks;
     }
 
-    public void TakeDamage(int damageToTake) 
+    public void TakeDamage(int damageToTake, PlayerUnitCore attacker) 
     {
+        lastAttacker = attacker;
         remainingHealth -= damageToTake;
         if (remainingHealth <= 0) 
         {
@@ -131,6 +136,10 @@ public class Ghoul : MonoBehaviour
 
     private void Die()
     {
+        if (lastAttacker != null)
+        {
+            lastAttacker.GainXp(xpReward);
+        }
         GhouldDied?.Invoke(this.gameObject);
         GhouldDied = null;
         Destroy(gameObject);
