@@ -174,6 +174,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -6866023295643474758, guid: 10a2aff79696b8d409926e00a3434153, type: 3}
+      propertyPath: turningSpeed
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 459965742702098687, guid: 10a2aff79696b8d409926e00a3434153, type: 3}
       propertyPath: m_Name
       value: PlayerUnit
