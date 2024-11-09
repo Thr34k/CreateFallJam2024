@@ -8,12 +8,18 @@ public class ProjectileBehavior : MonoBehaviour
     public float projectileSpeed = 2.5f;
     public int projectileDamage = 1;
 
+    public PlayerUnitCore shooter;
+
     // Start is called before the first frame update
     void Start()
     {
         
     }
 
+    public void SetShooter(PlayerUnitCore Shooter)
+    {
+        shooter = Shooter;
+    }
     // Update is called once per frame
     void Update()
     {
@@ -25,7 +31,7 @@ public class ProjectileBehavior : MonoBehaviour
         if (collision.gameObject.CompareTag("GhoulUnit")) 
         { 
             Debug.Log($"{gameObject.name}: Hit a ghoul");
-            collision.gameObject.GetComponent<Ghoul>().TakeDamage(projectileDamage);
+            collision.gameObject.GetComponent<Ghoul>().TakeDamage(projectileDamage, shooter);
             Destroy(gameObject);
         }
     }

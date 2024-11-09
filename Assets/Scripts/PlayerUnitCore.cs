@@ -37,6 +37,7 @@ public class PlayerUnitCore : MonoBehaviour
     public float reloadSpeed = 10f;
     public float fireRate = 2f;
     public int MagazineSize = 5;
+    private int currentAmmo;
     #endregion
 
     [Header("Shooting Variables")]
@@ -84,6 +85,8 @@ public class PlayerUnitCore : MonoBehaviour
             if (angleToTarget < 1f && canShoot)
             {
                 Shoot();
+                currentAmmo--;
+
             }
         }
         else 
@@ -103,6 +106,7 @@ public class PlayerUnitCore : MonoBehaviour
         targetEnemy = GameObject.FindGameObjectWithTag("GhoulUnit");
         characterInstance = this.gameObject;
         projectileSpawn = this.gameObject.transform.GetChild(0).gameObject;
+        currentAmmo = MagazineSize;
     }
 
     float Turn()
@@ -116,9 +120,24 @@ public class PlayerUnitCore : MonoBehaviour
     void Shoot()
     {
         var spawnedProjectile = Instantiate(bulletPrefab, projectileSpawn.transform.position, this.gameObject.transform.rotation);
-        canShoot = false;
-        remainingReloadTime = characterReloadTime;
-        StartCoroutine("StartReloading");
+        ProjectileBehavior projectile = spawnedProjectile.GetComponent<ProjectileBehavior>();
+
+        if (projectile != null)
+            projectile.SetShooter(this);
+        else { throw new Exception(); }
+
+        if (currentAmmo <= 0)
+        {
+            canShoot = false;
+            remainingReloadTime = characterReloadTime;
+            StartCoroutine("StartReloading");
+        }
+        else
+        {
+            canShoot = true;
+
+        }
+
     }
     IEnumerator StartReloading()
     {
@@ -130,6 +149,7 @@ public class PlayerUnitCore : MonoBehaviour
 
         if (remainingReloadTime <= 0)
         {
+            currentAmmo = MagazineSize;
             canShoot = true;
         }
     }
