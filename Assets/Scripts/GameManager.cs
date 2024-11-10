@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +13,9 @@ public class GameManager : MonoBehaviour
     public GameObject gameOverText;
 
     public int ghouldDeaths = 0;
+    public int gameDifficulty = 1;
+
+    public int playerCurrency = 100;
 
     [Header("Spawnpoints")]
     List<GameObject> playerSpawns = new List<GameObject>();
@@ -45,6 +49,23 @@ public class GameManager : MonoBehaviour
 
     }
 
+    public void GhoulDeatchCounter()
+    {
+        ghouldDeaths++;
+        this.playerCurrency += 10;
+        if (ghouldDeaths % 20 == 0)
+        {
+            this.IncreaseDifficulty();
+        }
+        //playerCurrency += 10;
+    }
+
+    private void IncreaseDifficulty()
+    {
+        gameDifficulty++;
+
+        MonsterUnitManager.Instance.maxActiveGhouls += 3;
+    }
 
     public void EndGame(bool victory)
     {

@@ -141,7 +141,8 @@ public class Ghoul : MonoBehaviour
             lastAttacker.GainXp(xpReward);
         }
         GhouldDied?.Invoke(this.gameObject);
-        GameManager.Instance.ghouldDeaths++;
+        GameManager.Instance.GhoulDeatchCounter();
+
         GhouldDied = null;
         Destroy(gameObject);
     }

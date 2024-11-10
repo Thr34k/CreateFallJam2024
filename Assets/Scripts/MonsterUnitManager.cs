@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class MonsterUnitManager : MonoBehaviour
 {
+    public static MonsterUnitManager Instance;
+
     List<GameObject> activeMonsterUnits = new List<GameObject>();
 
     [Header("Spawn variables")]
@@ -14,9 +16,19 @@ public class MonsterUnitManager : MonoBehaviour
     public GameObject ghoulPrefab;
     public int maxActiveGhouls = 1;
 
-
-    void Awake()
+    private void Awake()
     {
+        // Singleton pattern setup
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         monsterSpawns = GameObject.FindGameObjectsWithTag("MonsterSpawn").ToList();
     }
 
