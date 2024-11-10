@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
 
     public GameObject gameOverText;
 
+    public int ghouldDeaths = 0;
+
     [Header("Spawnpoints")]
     List<GameObject> playerSpawns = new List<GameObject>();
 
@@ -42,6 +44,7 @@ public class GameManager : MonoBehaviour
     {
 
     }
+
 
     public void EndGame(bool victory)
     {
