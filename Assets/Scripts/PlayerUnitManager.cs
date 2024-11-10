@@ -47,11 +47,11 @@ public class PlayerUnitManager : MonoBehaviour
 
         var switchWeaponsMenuObj = selectedCharacterMenu.GetComponent<CharacterMenu>();
         //TODO: Pass bullet sprite to use here as well
-        SelectedCharacterMenuComponent.BoltActionRifleBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[1], 30, 1f, .3f, 1));
-        SelectedCharacterMenuComponent.AssaultRifleBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[0], weaponDamage: 10, weaponReloadSpeed: 2f, weaponFireRate: .1f, weaponMagazineSize: 30));
-        SelectedCharacterMenuComponent.DoubleBarrelBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[2], weaponDamage: 40, weaponReloadSpeed: 2.5f, weaponFireRate: .15f, weaponMagazineSize: 2));
-        SelectedCharacterMenuComponent.EnergyRifleBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[3], weaponDamage: 15, weaponReloadSpeed: 1.5f, weaponFireRate: .2f, weaponMagazineSize: 15));
-        SelectedCharacterMenuComponent.PumpActionShotgunBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[4], weaponDamage: 35, weaponReloadSpeed: 4f, weaponFireRate: .4f, weaponMagazineSize: 8));
+        SelectedCharacterMenuComponent.AssaultRifleBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[0], weaponDamage: 10, weaponReloadSpeed: 2f, weaponFireRate: .1f, weaponMagazineSize: 30, weaponCost: 10));
+        SelectedCharacterMenuComponent.BoltActionRifleBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[1], weaponDamage: 30, weaponReloadSpeed: 1f, weaponFireRate: .3f, weaponMagazineSize: 1, weaponCost:200));
+        SelectedCharacterMenuComponent.DoubleBarrelBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[2], weaponDamage: 40, weaponReloadSpeed: 2.5f, weaponFireRate: .15f, weaponMagazineSize: 2, weaponCost: 200));
+        SelectedCharacterMenuComponent.EnergyRifleBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[3], weaponDamage: 50, weaponReloadSpeed: 1.5f, weaponFireRate: .1f, weaponMagazineSize: 50, weaponCost: 1000));
+        SelectedCharacterMenuComponent.PumpActionShotgunBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[4], weaponDamage: 35, weaponReloadSpeed: 4f, weaponFireRate: .4f, weaponMagazineSize: 8, weaponCost: 200));
 
         //NOTE: I use gameObject.SetActive here, because at this point using OpenSwitchWeaponsMenu would cause the menu to be active when the game is started
         SelectedCharacterMenuComponent.SwitchWeaponsMenu.SetActive(false);
@@ -202,12 +202,15 @@ public class PlayerUnitManager : MonoBehaviour
 
     }
 
-    void SwitchWeapon((string weaponName, string projectileName) spriteTuple, float weaponDamage, float weaponReloadSpeed, float weaponFireRate, int weaponMagazineSize) 
-    { 
-        //TODO Pass bullet to use here as well
-        Sprite loadedWeaponSprite = Resources.Load<Sprite>("Sprites/CreateJamFall2024/Weapons/" + spriteTuple.weaponName);
-        Sprite loadedProjectileSprite = Resources.Load<Sprite>("Sprites/CreateJamFall2024/Weapons/Bullets/" + spriteTuple.projectileName);
-        selectedCharacter.SetWeapon(loadedWeaponSprite, loadedProjectileSprite, weaponDamage, weaponReloadSpeed, weaponFireRate, weaponMagazineSize);
+    void SwitchWeapon((string weaponName, string projectileName) spriteTuple, float weaponDamage, float weaponReloadSpeed, float weaponFireRate, int weaponMagazineSize, int weaponCost) 
+    {
+        if (GameManager.Instance.playerCurrency >= weaponCost) 
+        { 
+            Sprite loadedWeaponSprite = Resources.Load<Sprite>("Sprites/CreateJamFall2024/Weapons/" + spriteTuple.weaponName);
+            Sprite loadedProjectileSprite = Resources.Load<Sprite>("Sprites/CreateJamFall2024/Weapons/Bullets/" + spriteTuple.projectileName);
+            selectedCharacter.SetWeapon(loadedWeaponSprite, loadedProjectileSprite, weaponDamage, weaponReloadSpeed, weaponFireRate, weaponMagazineSize);
+            GameManager.Instance.playerCurrency -= weaponCost;
+        }
     }
 
     private void AddXPToSelectedCharacter()

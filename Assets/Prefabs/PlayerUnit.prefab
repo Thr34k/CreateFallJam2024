@@ -151,6 +151,9 @@ MonoBehaviour:
   characterInstance: {fileID: 0}
   projectileSpawn: {fileID: 0}
   currentWeapon: {fileID: 0}
+  targetPosition: {x: 0, y: 0}
+  UnitMenu: {fileID: 0}
+  playerUnitComponent: {fileID: 0}
   level: 1
   xp: 0
   xpToLevel: 10
@@ -159,7 +162,8 @@ MonoBehaviour:
   maxHealth: 100
   damage: 10
   reloadSpeed: 10
-  fireRate: 0.5
+  fireRateModifier: 0
+  playerFireRate: 0
   MagazineSize: 5
   currentAmmo: 0
   reloaded: 1
@@ -168,8 +172,8 @@ MonoBehaviour:
   canShoot: 1
   timeUntilNextShot: 0
   turningSpeed: 5
-  movementSpeed: 1
-  debug: 1
+  movementSpeed: 0
+  debug: 0
 --- !u!1 &2123186739803852982
 GameObject:
   m_ObjectHideFlags: 0
@@ -267,7 +271,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 221a9bd0bacc4f74e8312d1d12c310db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sprite: {fileID: 0}
+  spriteRenderer: {fileID: 0}
   baseDamage: 10
   baseReloadSpeed: 10
   baseFireRate: 2

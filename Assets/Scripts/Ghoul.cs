@@ -76,7 +76,7 @@ public class Ghoul : MonoBehaviour
             }
             else
             {
-                if (!isAttacking) 
+                if (!isAttacking && finalTarget.GetComponent<PlayerUnitCore>() != null) 
                 { 
                     StartCoroutine("StartAttacking");
                 }
@@ -92,14 +92,34 @@ public class Ghoul : MonoBehaviour
     private void FindNewTarget()
     {
         var viableTargets = GameObject.FindGameObjectsWithTag("PlayerUnit").ToList();
-        finalTarget = viableTargets.FirstOrDefault();
+        GameObject currentChosenTarget = null;
+        if (!viableTargets.Any())
+        {
+            currentChosenTarget = GameObject.FindGameObjectWithTag("Nexus");
+            finalTarget = currentChosenTarget;
+        }
+        else 
+        { 
+            float shortestTargetDistance = float.MaxValue;
+            foreach (var target in viableTargets) 
+            {
+                float targetDistance = Vector3.Distance(transform.position, target.transform.position);
+                if (targetDistance < shortestTargetDistance) 
+                { 
+                    shortestTargetDistance = targetDistance;
+                    currentChosenTarget = target;
+                }
+            }
+            
+            finalTarget = currentChosenTarget;
+        }
     }
 
     private void Init()
     {
         finalTarget = GameObject.FindGameObjectWithTag("PlayerUnit");
         gridObject = GameObject.Find("LevelRoot");
-        testNextPositionMarker = GameObject.Find("TestNextPositionMarker");
+        testNextPositionMarker = transform.GetChild(0).gameObject;
         bounds = gridObject.GetComponent<Tilemap>().cellBounds;
         grid = gridObject.GetComponent<Grid>();
         remainingHealth = startingHealth;
@@ -134,13 +154,15 @@ public class Ghoul : MonoBehaviour
 
     }
 
-    private void Die()
+    public void Die()
     {
         if (lastAttacker != null)
         {
             lastAttacker.GainXp(xpReward);
         }
         GhouldDied?.Invoke(this.gameObject);
+        GameManager.Instance.GhoulDeatchCounter();
+
         GhouldDied = null;
         Destroy(gameObject);
     }

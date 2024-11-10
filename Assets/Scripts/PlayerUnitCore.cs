@@ -39,7 +39,7 @@ public class PlayerUnitCore : MonoBehaviour
     #region Combat
     public float damage = 10f;
     public float reloadSpeed = 10f;
-    public float fireRateModifier = 0f;
+    public float fireRateModifier = 1f;
     public float playerFireRate;
     public int MagazineSize = 5;
     public int currentAmmo = 0;
@@ -118,6 +118,8 @@ public class PlayerUnitCore : MonoBehaviour
         currentAmmo = MagazineSize;
         timeUntilNextShot = 0f;
         targetPosition = transform.position;
+
+        CalculateStatsFromNewWeapon(currentWeapon.baseDamage, currentWeapon.baseReloadSpeed, currentWeapon.baseFireRate, currentWeapon.baseMagazineSize);
     }
 
     public void SetWeapon(Sprite weaponSprite, Sprite projectileSprite, float weaponDamage, float weaponReloadSpeed, float weaponFireRate, int weaponMagazineSize) 
@@ -139,7 +141,7 @@ public class PlayerUnitCore : MonoBehaviour
         damage = damage + (newDamage - currentWeapon.baseDamage);
 
         //Set base reloadspeed
-        reloadSpeed = reloadSpeed + (newReloadSpeed - currentWeapon.baseReloadSpeed);
+        characterReloadTime = reloadSpeed + (newReloadSpeed - currentWeapon.baseReloadSpeed);
 
         //Calculate base firerate
         playerFireRate = newFirerate + (fireRateModifier * newFirerate);
@@ -184,7 +186,7 @@ public class PlayerUnitCore : MonoBehaviour
         if (currentAmmo <= 0)
         {
             reloaded = false;
-            remainingReloadTime = characterReloadTime * currentWeapon.baseReloadSpeed;
+            remainingReloadTime = reloadSpeed;
             StartCoroutine("StartReloading");
         }
         else

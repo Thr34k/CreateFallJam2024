@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class MonsterUnitManager : MonoBehaviour
 {
+    public static MonsterUnitManager Instance;
+
     List<GameObject> activeMonsterUnits = new List<GameObject>();
 
     [Header("Spawn variables")]
@@ -13,10 +15,21 @@ public class MonsterUnitManager : MonoBehaviour
     public GameObject nextSpawnToUse;
     public GameObject ghoulPrefab;
     public int maxActiveGhouls = 1;
+    public int ghoulStartingHealth = 10;
 
-
-    void Awake()
+    private void Awake()
     {
+        // Singleton pattern setup
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         monsterSpawns = GameObject.FindGameObjectsWithTag("MonsterSpawn").ToList();
     }
 
@@ -54,8 +67,10 @@ public class MonsterUnitManager : MonoBehaviour
             nextSpawnToUse = monsterSpawns[currentSpawnIndex];        
         }
 
-        var spawnedEnemy = Instantiate(monsterTypeToSpawn, nextSpawnToUse.transform.position, ghoulPrefab.transform.rotation);
+        var spawnedEnemy = Instantiate(monsterTypeToSpawn, nextSpawnToUse.transform.position, nextSpawnToUse.transform.rotation);
         spawnedEnemy.GetComponent<Ghoul>().GhouldDied += HandleGhoulDied;
+        spawnedEnemy.GetComponent<Ghoul>().startingHealth = ghoulStartingHealth;
+
         activeMonsterUnits.Add(spawnedEnemy);
     }
 

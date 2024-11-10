@@ -9,6 +9,7 @@ TagManager:
   - MonsterSpawn
   - PlayerSpawn
   - Level
+  - Nexus
   layers:
   - Default
   - TransparentFX
