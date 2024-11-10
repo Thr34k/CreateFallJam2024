@@ -582,7 +582,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nextSpawnToUse: {fileID: 0}
   playerUnitPrefab: {fileID: 459965742702098687, guid: 10a2aff79696b8d409926e00a3434153, type: 3}
-  maxPlayerUnitCount: 0
+  maxPlayerUnitCount: 2
   addXpButton: {fileID: 634267519}
   mainCamera: {fileID: 1285832267}
   selectedCharacter: {fileID: 0}
@@ -905,7 +905,7 @@ GameObject:
   - component: {fileID: 1332153634}
   m_Layer: 0
   m_Name: Nexus
-  m_TagString: Untagged
+  m_TagString: Nexus
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
