@@ -69,7 +69,7 @@ public class CharacterMenu : MonoBehaviour
 
         characterMaxHealthTxt.text = $"Max hp{character.maxHealth}";
         characterMagazineCapacityTxt.text = $"Mag size: {character.MagazineSize}";
-        characterFireRateTxt.text = $"Firerate: {character.fireRate}";
+        characterFireRateTxt.text = $"Firerate: {character.playerFireRate}";
         characterReloadTxt.text = $"Reload Speed: {character.reloadSpeed}";
     }
 }

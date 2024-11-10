@@ -39,7 +39,8 @@ public class PlayerUnitCore : MonoBehaviour
     #region Combat
     public float damage = 10f;
     public float reloadSpeed = 10f;
-    public float fireRate = 2f;
+    public float fireRateModifier = 0f;
+    public float playerFireRate;
     public int MagazineSize = 5;
     public int currentAmmo = 0;
     #endregion
@@ -119,13 +120,14 @@ public class PlayerUnitCore : MonoBehaviour
         targetPosition = transform.position;
     }
 
-    public void SetWeapon(Sprite weaponSprite, float weaponDamage, float weaponReloadSpeed, float weaponFireRate, int weaponMagazineSize) 
+    public void SetWeapon(Sprite weaponSprite, Sprite projectileSprite, float weaponDamage, float weaponReloadSpeed, float weaponFireRate, int weaponMagazineSize) 
     {
         CalculateStatsFromNewWeapon(weaponDamage, weaponReloadSpeed, weaponFireRate, weaponMagazineSize);
         if (UnitMenu != null) 
         {
             UnitMenu.UpdateCharacterMenu(this);
         }
+        bulletPrefab.GetComponent<SpriteRenderer>().sprite = projectileSprite;
         currentWeapon.SwitchWeapon(sprite: weaponSprite, _baseDamage: weaponDamage, _baseReloadSpeed: weaponReloadSpeed, _baseFireRate: weaponFireRate, _baseMagazineSize: weaponMagazineSize);
     }
 
@@ -140,7 +142,7 @@ public class PlayerUnitCore : MonoBehaviour
         reloadSpeed = reloadSpeed + (newReloadSpeed - currentWeapon.baseReloadSpeed);
 
         //Calculate base firerate
-        fireRate = fireRate + (1 * (newFirerate - currentWeapon.baseFireRate));
+        playerFireRate = newFirerate + (fireRateModifier * newFirerate);
 
         //Calculate magazineSize;
         MagazineSize = MagazineSize + (newWeaponMagazineSize - currentWeapon.baseMagazineSize);
@@ -166,12 +168,15 @@ public class PlayerUnitCore : MonoBehaviour
         { 
             var spawnedProjectile = Instantiate(bulletPrefab, projectileSpawn.transform.position, this.gameObject.transform.rotation);
             ProjectileBehavior projectile = spawnedProjectile.GetComponent<ProjectileBehavior>();
-            if (projectile != null)
+            if (projectile != null) 
+            { 
                 projectile.SetShooter(this);
+                var projectileDamage = damage;
+            }
             else { throw new Exception(); }
             currentAmmo--;
             canShoot = false;
-            timeUntilNextShot = fireRate;
+            timeUntilNextShot = playerFireRate;
             StartCoroutine("WaitForNextShot");
         }
 
@@ -179,7 +184,7 @@ public class PlayerUnitCore : MonoBehaviour
         if (currentAmmo <= 0)
         {
             reloaded = false;
-            remainingReloadTime = characterReloadTime;
+            remainingReloadTime = characterReloadTime * currentWeapon.baseReloadSpeed;
             StartCoroutine("StartReloading");
         }
         else
@@ -276,13 +281,13 @@ public class PlayerUnitCore : MonoBehaviour
                 break;
 
             case 2:
-                float fireRateIncrease = UnityEngine.Random.Range(0.1f, 0.6f);
-                fireRate += fireRateIncrease;
+                float fireRateIncrease = UnityEngine.Random.Range(0.01f, 0.06f);
+                fireRateModifier = Mathf.Clamp(fireRateModifier + fireRateIncrease, 0.01f, 0.9f);
                 break;
 
             case 3:
-                float reloadSpeedIncrease = UnityEngine.Random.Range(5f, 10.1f);
-                reloadSpeed += reloadSpeedIncrease;
+                float reloadSpeedIncrease = UnityEngine.Random.Range(0.01f, 0.06f);
+                reloadSpeed = Mathf.Clamp(reloadSpeed + reloadSpeedIncrease, 0.01f, 0.9f);
                 break;
 
             case 4:

@@ -22,16 +22,16 @@ public class PlayerUnitManager : MonoBehaviour
     public CharacterMenu SelectedCharacterMenuComponent;
     public bool openSwitchWeaponsMenu;
 
-    List<string> spriteNames = new List<string>();
+    List<(string weaponName, string projectileName)> spriteNames = new List<(string, string)>();
 
     void Awake()
     {
         playerSpawns = GameObject.FindGameObjectsWithTag("PlayerSpawn").ToList();
-        spriteNames.Add("assaultrifle");
-        spriteNames.Add("boltactionrifle");
-        spriteNames.Add("doublebarrel");
-        spriteNames.Add("energyrifle");
-        spriteNames.Add("pumpactionshotgun");
+        spriteNames.Add(("assaultrifle", "assault_rifle_bullet_large"));
+        spriteNames.Add(("boltactionrifle", "boltaction_rifle_bullet_large"));
+        spriteNames.Add(("doublebarrel", "shotgun_shot_large"));
+        spriteNames.Add(("energyrifle", "energy_rifle_bullet"));
+        spriteNames.Add(("pumpactionshotgun", "shotgun_shot_large"));
     }
 
     // Start is called before the first frame update
@@ -47,11 +47,11 @@ public class PlayerUnitManager : MonoBehaviour
 
         var switchWeaponsMenuObj = selectedCharacterMenu.GetComponent<CharacterMenu>();
         //TODO: Pass bullet sprite to use here as well
-        SelectedCharacterMenuComponent.AssaultRifleBtn.onClick.AddListener(() => SwitchWeapon(weaponName: spriteNames[0], weaponDamage: 10, weaponReloadSpeed: 2f, weaponFireRate: .1f, weaponMagazineSize: 30));
-        SelectedCharacterMenuComponent.BoltActionRifleBtn.onClick.AddListener(() => SwitchWeapon(spriteNames[1], 30, 1f, .3f, 1));
-        SelectedCharacterMenuComponent.DoubleBarrelBtn.onClick.AddListener(() => SwitchWeapon(weaponName: spriteNames[2], weaponDamage: 40, weaponReloadSpeed: 2.5f, weaponFireRate: .15f, weaponMagazineSize: 2));
-        SelectedCharacterMenuComponent.EnergyRifleBtn.onClick.AddListener(() => SwitchWeapon(weaponName: spriteNames[3], weaponDamage: 15, weaponReloadSpeed: 1.5f, weaponFireRate: .2f, weaponMagazineSize: 15));
-        SelectedCharacterMenuComponent.PumpActionShotgunBtn.onClick.AddListener(() => SwitchWeapon(weaponName: spriteNames[4], weaponDamage: 35, weaponReloadSpeed: 4f, weaponFireRate: .4f, weaponMagazineSize: 8));
+        SelectedCharacterMenuComponent.BoltActionRifleBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[1], 30, 1f, .3f, 1));
+        SelectedCharacterMenuComponent.AssaultRifleBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[0], weaponDamage: 10, weaponReloadSpeed: 2f, weaponFireRate: .1f, weaponMagazineSize: 30));
+        SelectedCharacterMenuComponent.DoubleBarrelBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[2], weaponDamage: 40, weaponReloadSpeed: 2.5f, weaponFireRate: .15f, weaponMagazineSize: 2));
+        SelectedCharacterMenuComponent.EnergyRifleBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[3], weaponDamage: 15, weaponReloadSpeed: 1.5f, weaponFireRate: .2f, weaponMagazineSize: 15));
+        SelectedCharacterMenuComponent.PumpActionShotgunBtn.onClick.AddListener(() => SwitchWeapon(spriteTuple: spriteNames[4], weaponDamage: 35, weaponReloadSpeed: 4f, weaponFireRate: .4f, weaponMagazineSize: 8));
 
         //NOTE: I use gameObject.SetActive here, because at this point using OpenSwitchWeaponsMenu would cause the menu to be active when the game is started
         SelectedCharacterMenuComponent.SwitchWeaponsMenu.SetActive(false);
@@ -202,11 +202,12 @@ public class PlayerUnitManager : MonoBehaviour
 
     }
 
-    void SwitchWeapon(string weaponName, float weaponDamage, float weaponReloadSpeed, float weaponFireRate, int weaponMagazineSize) 
+    void SwitchWeapon((string weaponName, string projectileName) spriteTuple, float weaponDamage, float weaponReloadSpeed, float weaponFireRate, int weaponMagazineSize) 
     { 
         //TODO Pass bullet to use here as well
-        Sprite loadedSprite = Resources.Load<Sprite>("Sprites/CreateJamFall2024/Weapons/" + weaponName);
-        selectedCharacter.SetWeapon(loadedSprite, weaponDamage, weaponReloadSpeed, weaponFireRate, weaponMagazineSize);
+        Sprite loadedWeaponSprite = Resources.Load<Sprite>("Sprites/CreateJamFall2024/Weapons/" + spriteTuple.weaponName);
+        Sprite loadedProjectileSprite = Resources.Load<Sprite>("Sprites/CreateJamFall2024/Weapons/Bullets/" + spriteTuple.projectileName);
+        selectedCharacter.SetWeapon(loadedWeaponSprite, loadedProjectileSprite, weaponDamage, weaponReloadSpeed, weaponFireRate, weaponMagazineSize);
     }
 
     private void AddXPToSelectedCharacter()
