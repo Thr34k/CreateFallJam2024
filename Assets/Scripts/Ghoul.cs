@@ -134,7 +134,7 @@ public class Ghoul : MonoBehaviour
 
     }
 
-    private void Die()
+    public void Die()
     {
         if (lastAttacker != null)
         {
