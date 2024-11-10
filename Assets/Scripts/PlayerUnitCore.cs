@@ -20,7 +20,8 @@ public class PlayerUnitCore : MonoBehaviour
     public GameObject projectileSpawn;
     public Weapon currentWeapon;
     public Vector2 targetPosition;
-
+    public CharacterMenu UnitMenu;
+    public PlayerUnitCore playerUnitComponent;
     #region Level
     [Header("Experience")]
 
@@ -109,12 +110,40 @@ public class PlayerUnitCore : MonoBehaviour
     void Init()
     {
         targetEnemy = GameObject.FindGameObjectWithTag("GhoulUnit");
+        playerUnitComponent = GetComponent<PlayerUnitCore>();
         characterInstance = this.gameObject;
         projectileSpawn = this.gameObject.transform.GetChild(0).gameObject;
         currentWeapon = this.gameObject.transform.GetChild(1).gameObject.GetComponent<Weapon>();
         currentAmmo = MagazineSize;
         timeUntilNextShot = 0f;
         targetPosition = transform.position;
+    }
+
+    public void SetWeapon(Sprite weaponSprite, float weaponDamage, float weaponReloadSpeed, float weaponFireRate, int weaponMagazineSize) 
+    {
+        CalculateStatsFromNewWeapon(weaponDamage, weaponReloadSpeed, weaponFireRate, weaponMagazineSize);
+        if (UnitMenu != null) 
+        {
+            UnitMenu.UpdateCharacterMenu(this);
+        }
+        currentWeapon.SwitchWeapon(sprite: weaponSprite, _baseDamage: weaponDamage, _baseReloadSpeed: weaponReloadSpeed, _baseFireRate: weaponFireRate, _baseMagazineSize: weaponMagazineSize);
+    }
+
+    private void CalculateStatsFromNewWeapon(float newDamage, float newReloadSpeed, float newFirerate, int newWeaponMagazineSize)
+    {
+        //TODO: There is a bug with how the stats are calculated here, because we dont have weapon stats and player stats separated
+
+        //Calculate base damage
+        damage = damage + (newDamage - currentWeapon.baseDamage);
+
+        //Set base reloadspeed
+        reloadSpeed = reloadSpeed + (newReloadSpeed - currentWeapon.baseReloadSpeed);
+
+        //Calculate base firerate
+        fireRate = fireRate + (1 * (newFirerate - currentWeapon.baseFireRate));
+
+        //Calculate magazineSize;
+        MagazineSize = MagazineSize + (newWeaponMagazineSize - currentWeapon.baseMagazineSize);
     }
 
     public void MoveCharacter()
@@ -223,6 +252,11 @@ public class PlayerUnitCore : MonoBehaviour
         xpToLevel *= 1.2f;
 
         IncreaseRandomStat();
+
+        if (UnitMenu != null) 
+        {
+            UnitMenu.UpdateCharacterMenu(this);
+        }
     }
 
     public void IncreaseRandomStat()

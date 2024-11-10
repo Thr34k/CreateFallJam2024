@@ -5,7 +5,7 @@ using UnityEngine;
 public class Weapon : MonoBehaviour
 {
     [Header("Necessary references")]
-    public SpriteRenderer sprite;
+    public SpriteRenderer spriteRenderer;
 
     [Header("Gun stats")]
     public float baseDamage = 10f;
@@ -13,10 +13,11 @@ public class Weapon : MonoBehaviour
     public float baseFireRate = 2f;
     public int baseMagazineSize = 5;
 
+    //TODO: Add bullet amount as well, or cut weapons with bullet spread
 
     void Awake()
     {
-        sprite = GetComponent<SpriteRenderer>();    
+        spriteRenderer = GetComponent<SpriteRenderer>();    
     }
 
     // Start is called before the first frame update
@@ -31,11 +32,12 @@ public class Weapon : MonoBehaviour
         
     }
 
-    public void SwitchWeapon(SpriteRenderer sprite, float _baseDamage, float _baseReloadSpeed, float _baseFireRate, int _baseMagazineSize) 
+    public void SwitchWeapon(Sprite sprite, float _baseDamage, float _baseReloadSpeed, float _baseFireRate, int _baseMagazineSize) 
     { 
         baseDamage = _baseDamage;
         baseReloadSpeed = _baseReloadSpeed;
         baseFireRate = _baseFireRate;
         baseMagazineSize = _baseMagazineSize;
+        spriteRenderer.sprite = sprite;
     }
 }

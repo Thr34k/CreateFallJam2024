@@ -33,5 +33,10 @@ public class ProjectileBehavior : MonoBehaviour
             collision.gameObject.GetComponent<Ghoul>().TakeDamage(projectileDamage, shooter);
             Destroy(gameObject);
         }
+
+        if (collision.gameObject.CompareTag("Level")) 
+        { 
+            Destroy(gameObject);
+        }
     }
 }

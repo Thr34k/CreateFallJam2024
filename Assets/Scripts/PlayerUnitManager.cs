@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class PlayerUnitManager : MonoBehaviour
@@ -16,14 +17,45 @@ public class PlayerUnitManager : MonoBehaviour
     public GameObject playerUnitPrefab;
     public int maxPlayerUnitCount;
 
+    [Header("Selected character variables")]
+    public GameObject selectedCharacterMenu;
+    public CharacterMenu SelectedCharacterMenuComponent;
+    public bool openSwitchWeaponsMenu;
+
+    List<string> spriteNames = new List<string>();
+
     void Awake()
     {
         playerSpawns = GameObject.FindGameObjectsWithTag("PlayerSpawn").ToList();
+        spriteNames.Add("assaultrifle");
+        spriteNames.Add("boltactionrifle");
+        spriteNames.Add("doublebarrel");
+        spriteNames.Add("energyrifle");
+        spriteNames.Add("pumpactionshotgun");
     }
 
     // Start is called before the first frame update
     private void Start()
     {
+        selectedCharacterMenu = GameObject.Find("SelectedCharacterMenu");
+        SelectedCharacterMenuComponent = selectedCharacterMenu.GetComponent<CharacterMenu>();
+        Button switchWeaponBtn = SelectedCharacterMenuComponent.SwitchWeaponBtn;
+        if (switchWeaponBtn != null) 
+        {
+            switchWeaponBtn.onClick.AddListener(OpenSwitchWeaponsMenu);
+        }
+
+        var switchWeaponsMenuObj = selectedCharacterMenu.GetComponent<CharacterMenu>();
+        //TODO: Pass bullet sprite to use here as well
+        SelectedCharacterMenuComponent.AssaultRifleBtn.onClick.AddListener(() => SwitchWeapon(weaponName: spriteNames[0], weaponDamage: 10, weaponReloadSpeed: 2f, weaponFireRate: .1f, weaponMagazineSize: 30));
+        SelectedCharacterMenuComponent.BoltActionRifleBtn.onClick.AddListener(() => SwitchWeapon(spriteNames[1], 30, 1f, .3f, 1));
+        SelectedCharacterMenuComponent.DoubleBarrelBtn.onClick.AddListener(() => SwitchWeapon(weaponName: spriteNames[2], weaponDamage: 40, weaponReloadSpeed: 2.5f, weaponFireRate: .15f, weaponMagazineSize: 2));
+        SelectedCharacterMenuComponent.EnergyRifleBtn.onClick.AddListener(() => SwitchWeapon(weaponName: spriteNames[3], weaponDamage: 15, weaponReloadSpeed: 1.5f, weaponFireRate: .2f, weaponMagazineSize: 15));
+        SelectedCharacterMenuComponent.PumpActionShotgunBtn.onClick.AddListener(() => SwitchWeapon(weaponName: spriteNames[4], weaponDamage: 35, weaponReloadSpeed: 4f, weaponFireRate: .4f, weaponMagazineSize: 8));
+
+        //NOTE: I use gameObject.SetActive here, because at this point using OpenSwitchWeaponsMenu would cause the menu to be active when the game is started
+        SelectedCharacterMenuComponent.SwitchWeaponsMenu.SetActive(false);
+        selectedCharacterMenu.gameObject.SetActive(false);    
         mainCamera = Camera.main;
         InitializeCharacters();
 
@@ -89,6 +121,11 @@ public class PlayerUnitManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0)) // Left mouse button clicked
         {
+            if (EventSystem.current.IsPointerOverGameObject()) 
+            {
+                return;
+            }
+
             Vector2 worldPoint = mainCamera.ScreenToWorldPoint(Input.mousePosition);
 
             RaycastHit2D hit2D = Physics2D.Raycast(worldPoint, Vector2.zero);
@@ -104,6 +141,8 @@ public class PlayerUnitManager : MonoBehaviour
             else 
             { 
                 selectedCharacterInstance.GetComponent<Renderer>().material.color = Color.white;
+                selectedCharacterMenu.GetComponent<CharacterMenu>().SwitchWeaponsMenu.SetActive(false);
+                selectedCharacterMenu.SetActive(false);
                 selectedCharacter = null;
             }
         }
@@ -122,8 +161,10 @@ public class PlayerUnitManager : MonoBehaviour
         }
 
         selectedCharacterInstance = selectedCharacter.characterInstance;
+        selectedCharacter.UnitMenu = selectedCharacterMenu.GetComponent<CharacterMenu>();
+        selectedCharacter.UnitMenu.UpdateCharacterMenu(selectedCharacter);
+        selectedCharacterMenu.gameObject.SetActive(true);
         selectedCharacterInstance.GetComponent<Renderer>().material.color = Color.green; // Change color to indicate selection
-        Debug.Log($"{selectedCharacter.name} is selected.");
     }
 
     // Handle commands for the selected unit
@@ -154,6 +195,19 @@ public class PlayerUnitManager : MonoBehaviour
         }
     }
 
+    private void OpenSwitchWeaponsMenu() 
+    {
+        openSwitchWeaponsMenu = !openSwitchWeaponsMenu;
+        SelectedCharacterMenuComponent.SwitchWeaponsMenu.SetActive(openSwitchWeaponsMenu);
+
+    }
+
+    void SwitchWeapon(string weaponName, float weaponDamage, float weaponReloadSpeed, float weaponFireRate, int weaponMagazineSize) 
+    { 
+        //TODO Pass bullet to use here as well
+        Sprite loadedSprite = Resources.Load<Sprite>("Sprites/CreateJamFall2024/Weapons/" + weaponName);
+        selectedCharacter.SetWeapon(loadedSprite, weaponDamage, weaponReloadSpeed, weaponFireRate, weaponMagazineSize);
+    }
 
     private void AddXPToSelectedCharacter()
     {
