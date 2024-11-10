@@ -76,7 +76,7 @@ public class Ghoul : MonoBehaviour
             }
             else
             {
-                if (!isAttacking) 
+                if (!isAttacking && finalTarget.GetComponent<PlayerUnitCore>() != null) 
                 { 
                     StartCoroutine("StartAttacking");
                 }
@@ -92,7 +92,27 @@ public class Ghoul : MonoBehaviour
     private void FindNewTarget()
     {
         var viableTargets = GameObject.FindGameObjectsWithTag("PlayerUnit").ToList();
-        finalTarget = viableTargets.FirstOrDefault();
+        GameObject currentChosenTarget = null;
+        if (!viableTargets.Any())
+        {
+            currentChosenTarget = GameObject.FindGameObjectWithTag("Nexus");
+            finalTarget = currentChosenTarget;
+        }
+        else 
+        { 
+            float shortestTargetDistance = float.MaxValue;
+            foreach (var target in viableTargets) 
+            {
+                float targetDistance = Vector3.Distance(transform.position, target.transform.position);
+                if (targetDistance < shortestTargetDistance) 
+                { 
+                    shortestTargetDistance = targetDistance;
+                    currentChosenTarget = target;
+                }
+            }
+            
+            finalTarget = currentChosenTarget;
+        }
     }
 
     private void Init()

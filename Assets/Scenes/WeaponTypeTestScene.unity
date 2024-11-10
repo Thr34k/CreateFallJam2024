@@ -582,7 +582,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nextSpawnToUse: {fileID: 0}
   playerUnitPrefab: {fileID: 459965742702098687, guid: 10a2aff79696b8d409926e00a3434153, type: 3}
-  maxPlayerUnitCount: 0
+  maxPlayerUnitCount: 2
   addXpButton: {fileID: 634267519}
   mainCamera: {fileID: 1285832267}
   selectedCharacter: {fileID: 0}
