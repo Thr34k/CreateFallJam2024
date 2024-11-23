@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         playerCurrecnyTxt.GetComponent<TextMeshProUGUI>().text = "Currency: " + playerCurrency;
-        nexusHealthTxt.GetComponent<TextMeshProUGUI>().text = "Remaining nexus health: " + nexus.GetComponent<Nexus>().currentHealth;
+        nexusHealthTxt.GetComponent<TextMeshProUGUI>().text = "Remaining eye health: " + nexus.GetComponent<Nexus>().currentHealth;
     }
 
     public void GhoulDeatchCounter()

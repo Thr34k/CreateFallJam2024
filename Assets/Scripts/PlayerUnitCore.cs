@@ -15,6 +15,7 @@ public class PlayerUnitCore : MonoBehaviour
     [Header("Necessary references and fields")]
     public GameObject targetEnemy;
     public GameObject bulletPrefab;
+    public Sprite bulletSprite;
     public string unitName;
     public GameObject characterInstance;
     public GameObject projectileSpawn;
@@ -78,7 +79,11 @@ public class PlayerUnitCore : MonoBehaviour
             gui.fontSize = 25;
             gui.normal.textColor = Color.green;
             GUI.BeginGroup(new Rect(10, 10, 600, 350));
-            GUI.Label(new Rect(10, 25, 500, 30), $"PlayerUnits Current Level: {level}", gui);
+            GUI.Label(new Rect(10, 200, 500, 30), $"PlayerUnits Current Level: {level}", gui);
+            GUI.Label(new Rect(10, 225, 500, 30), $"PlayerUnits Current damage: {damage}", gui);
+            GUI.Label(new Rect(10, 250, 500, 30), $"PlayerUnits Current reload time: {characterReloadTime}", gui);
+            GUI.Label(new Rect(10, 275, 500, 30), $"PlayerUnits Current fire rate: {playerFireRate}", gui);
+            GUI.Label(new Rect(10, 300, 500, 30), $"PlayerUnits Current mag size: {MagazineSize}", gui);
             GUI.EndGroup();
         }    
     }
@@ -122,15 +127,16 @@ public class PlayerUnitCore : MonoBehaviour
         CalculateStatsFromNewWeapon(currentWeapon.baseDamage, currentWeapon.baseReloadSpeed, currentWeapon.baseFireRate, currentWeapon.baseMagazineSize);
     }
 
-    public void SetWeapon(Sprite weaponSprite, Sprite projectileSprite, float weaponDamage, float weaponReloadSpeed, float weaponFireRate, int weaponMagazineSize) 
+    public void SetWeapon(Sprite weaponSprite, Sprite projectileSprite, float weaponDamage, float weaponReloadSpeed, float weaponFireRate, int weaponMagazineSize, int pelletsPerShot) 
     {
         CalculateStatsFromNewWeapon(weaponDamage, weaponReloadSpeed, weaponFireRate, weaponMagazineSize);
         if (UnitMenu != null) 
         {
             UnitMenu.UpdateCharacterMenu(this);
         }
-        bulletPrefab.GetComponent<SpriteRenderer>().sprite = projectileSprite;
-        currentWeapon.SwitchWeapon(sprite: weaponSprite, _baseDamage: weaponDamage, _baseReloadSpeed: weaponReloadSpeed, _baseFireRate: weaponFireRate, _baseMagazineSize: weaponMagazineSize);
+        //bulletPrefab.GetComponent<SpriteRenderer>().sprite = projectileSprite;
+        bulletSprite = projectileSprite;
+        currentWeapon.SwitchWeapon(sprite: weaponSprite, _baseDamage: weaponDamage, _baseReloadSpeed: weaponReloadSpeed, _baseFireRate: weaponFireRate, _baseMagazineSize: weaponMagazineSize, _pelletsPerShot: pelletsPerShot);
     }
 
     private void CalculateStatsFromNewWeapon(float newDamage, float newReloadSpeed, float newFirerate, int newWeaponMagazineSize)
@@ -167,15 +173,28 @@ public class PlayerUnitCore : MonoBehaviour
     void Shoot()
     {
         if (canShoot) 
-        { 
-            var spawnedProjectile = Instantiate(bulletPrefab, projectileSpawn.transform.position, this.gameObject.transform.rotation);
-            ProjectileBehavior projectile = spawnedProjectile.GetComponent<ProjectileBehavior>();
-            if (projectile != null) 
-            { 
-                projectile.SetShooter(this);
-                var projectileDamage = damage;
+        {
+            float angleIncrement = 20f;
+            float angleOffSet = 0;
+            int startingIteration = -1 * currentWeapon.pelletsPerShot / 2;
+            for (int i = startingIteration; i < startingIteration + currentWeapon.pelletsPerShot; i++) 
+            {
+                angleOffSet += -((currentWeapon.pelletsPerShot - 1) / 2f * angleIncrement) + i * angleIncrement;
+
+                Quaternion rotation = Quaternion.Euler(projectileSpawn.transform.eulerAngles.x, projectileSpawn.transform.eulerAngles.y, projectileSpawn.transform.eulerAngles.z + (i * angleIncrement));
+                
+
+                var spawnedProjectile = Instantiate(bulletPrefab, projectileSpawn.transform.position, rotation);
+                spawnedProjectile.GetComponent<SpriteRenderer>().sprite = bulletSprite;
+                ProjectileBehavior projectile = spawnedProjectile.GetComponent<ProjectileBehavior>();
+                if (projectile != null) 
+                { 
+                    projectile.SetShooter(this);
+                    projectile.projectileDamage = (int)damage;
+                }
+                else { throw new Exception(); }
             }
-            else { throw new Exception(); }
+
             currentAmmo--;
             canShoot = false;
             timeUntilNextShot = playerFireRate;

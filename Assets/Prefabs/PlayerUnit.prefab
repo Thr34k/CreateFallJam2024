@@ -160,11 +160,11 @@ MonoBehaviour:
   xpModifier: 1
   health: 100
   maxHealth: 100
-  damage: 10
-  reloadSpeed: 10
-  fireRateModifier: 0
-  playerFireRate: 0
-  MagazineSize: 5
+  damage: 1
+  reloadSpeed: 1
+  fireRateModifier: 1
+  playerFireRate: 1
+  MagazineSize: 1
   currentAmmo: 0
   reloaded: 1
   characterReloadTime: 2.5
@@ -172,7 +172,7 @@ MonoBehaviour:
   canShoot: 1
   timeUntilNextShot: 0
   turningSpeed: 5
-  movementSpeed: 0
+  movementSpeed: 2
   debug: 0
 --- !u!1 &2123186739803852982
 GameObject:

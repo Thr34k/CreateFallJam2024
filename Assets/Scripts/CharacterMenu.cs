@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class CharacterMenu : MonoBehaviour
 {
+    #region Selected Character text fields
+    [Header("Selected Character text fields")]
     public TextMeshProUGUI characterLevelTxt;
     public TextMeshProUGUI characterNameTxt;
     public TextMeshProUGUI characterCurrentHealthTxt;
@@ -15,14 +17,19 @@ public class CharacterMenu : MonoBehaviour
     public TextMeshProUGUI characterMagazineCapacityTxt;
     public TextMeshProUGUI characterFireRateTxt;
     public TextMeshProUGUI characterReloadTxt;
+    #endregion
 
+    #region Switch Weapons Menu
+    [Header("Switch Weapons Menu")]
     public GameObject SwitchWeaponsMenu;
+    [Header("Switch Weapons Buttons")]
     public Button SwitchWeaponBtn;
     public Button AssaultRifleBtn;
     public Button BoltActionRifleBtn;
     public Button EnergyRifleBtn;
     public Button DoubleBarrelBtn;
     public Button PumpActionShotgunBtn;
+    #endregion
 
     private void Awake()
     {
@@ -33,7 +40,7 @@ public class CharacterMenu : MonoBehaviour
     {
         SwitchWeaponBtn = GameObject.Find("SwitchWeapon").GetComponent<Button>();
         AssaultRifleBtn = GameObject.Find("SwitchWeaponAssaultRifle").GetComponent<Button>();
-        BoltActionRifleBtn = GameObject.Find("SwitchWeaponBoltActionRifle").GetComponent<Button>();
+        //BoltActionRifleBtn = GameObject.Find("SwitchWeaponBoltActionRifle").GetComponent<Button>();
         EnergyRifleBtn = GameObject.Find("SwitchWeaponEnergyRifle").GetComponent<Button>();
         DoubleBarrelBtn = GameObject.Find("SwitchWeaponDoubleBarrel").GetComponent<Button>();
         PumpActionShotgunBtn = GameObject.Find("SwitchWeaponPumpActionShotgun").GetComponent<Button>();

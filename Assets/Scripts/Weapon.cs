@@ -12,6 +12,7 @@ public class Weapon : MonoBehaviour
     public float baseReloadSpeed = 10f;
     public float baseFireRate = 2f;
     public int baseMagazineSize = 5;
+    public int pelletsPerShot = 1;
 
     //TODO: Add bullet amount as well, or cut weapons with bullet spread
 
@@ -32,12 +33,13 @@ public class Weapon : MonoBehaviour
         
     }
 
-    public void SwitchWeapon(Sprite sprite, float _baseDamage, float _baseReloadSpeed, float _baseFireRate, int _baseMagazineSize) 
+    public void SwitchWeapon(Sprite sprite, float _baseDamage, float _baseReloadSpeed, float _baseFireRate, int _baseMagazineSize, int _pelletsPerShot) 
     { 
         baseDamage = _baseDamage;
         baseReloadSpeed = _baseReloadSpeed;
         baseFireRate = _baseFireRate;
         baseMagazineSize = _baseMagazineSize;
         spriteRenderer.sprite = sprite;
+        pelletsPerShot = _pelletsPerShot;
     }
 }

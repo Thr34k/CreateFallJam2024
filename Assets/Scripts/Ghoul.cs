@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -26,8 +27,11 @@ public class Ghoul : MonoBehaviour
     public BoundsInt bounds;
     public Vector3 currentPosition;
     public Vector3Int chosenNextPosition = Vector3Int.zero;
+    public List<Vector3Int> vector3Ints = new List<Vector3Int>();
 
     bool debug = false;
+    GUIStyle gui = new GUIStyle();
+
 
     public float distanceToFinalTarget;
     #endregion
@@ -73,6 +77,9 @@ public class Ghoul : MonoBehaviour
             if (distanceToFinalTarget > 0.6f)
             {
                 transform.position = Vector2.MoveTowards(transform.position, testNextPositionMarker.transform.position, movementSpeed * Time.deltaTime);
+
+                var targetDirection = finalTarget.transform.position - transform.position;
+                transform.up = Vector2.MoveTowards(transform.up, targetDirection, 5 * Time.deltaTime);
             }
             else
             {
@@ -87,6 +94,28 @@ public class Ghoul : MonoBehaviour
             FindNewTarget();
         }
 
+    }
+
+    void OnGUI()
+    {
+        if (debug)
+        {
+            gui.fontSize = 25;
+            gui.normal.textColor = Color.cyan;
+            GUI.BeginGroup(new Rect(10, 10, 600, 500));
+            GUI.Label(new Rect(0, 200, 500, 30), $"Next position: {chosenNextPosition}", gui);
+            GUI.Label(new Rect(0, 225, 500, 30), $"Current tile: {grid.WorldToCell(currentPosition)}", gui);
+            GUI.Label(new Rect(0, 250, 500, 30), $"Final target position: {finalTarget.transform.position}", gui);
+            GUI.Label(new Rect(0, 275, 500, 30), $"Final target distance: {distanceToFinalTarget}", gui);
+            GUI.Label(new Rect(0, 300, 500, 30), $"Computed positions:", gui);
+            int offSet = 0;
+            foreach (var vec in vector3Ints) 
+            {
+                offSet += 20;
+                GUI.Label(new Rect(0, 300+offSet, 500, 30), $"{vec}", gui);  
+            }
+            GUI.EndGroup();
+        }
     }
 
     private void FindNewTarget()
@@ -173,7 +202,8 @@ public class Ghoul : MonoBehaviour
     }
 
     void FindNextMovePosition() 
-    { 
+    {
+        currentPosition = transform.position;
         Vector3Int currentTile = grid.WorldToCell(currentPosition);
         List<Vector3Int> viablePositions = new List<Vector3Int>();
 
@@ -181,6 +211,8 @@ public class Ghoul : MonoBehaviour
         viablePositions.Add(new Vector3Int(currentTile.x, currentTile.y-1, currentTile.z));
         viablePositions.Add(new Vector3Int(currentTile.x+1, currentTile.y, currentTile.z));
         viablePositions.Add(new Vector3Int(currentTile.x-1, currentTile.y, currentTile.z));
+
+        vector3Ints = viablePositions;
 
         float shortestDistance = float.MaxValue;
         foreach (var position in viablePositions) 
